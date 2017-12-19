@@ -510,8 +510,8 @@ int main(int argc, char** argv) {
 
         // Create a transaction processor and register our
         // handlers with it.
-		sawtooth::TxProcessorIF* p =
-		sawtooth::TxProcessorIF::Create(connectString);        
+		sawtooth::TransactionProcessorIF* p =
+		sawtooth::TransactionProcessorIF::Create(connectString);
 		sawtooth::TransactionProcessorUPtr processor(p);
         
 		sawtooth::TransactionHandlerUPtr transaction_handler(
