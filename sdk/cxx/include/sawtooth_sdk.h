@@ -28,35 +28,35 @@ typedef std::unique_ptr<std::string> StringUPtr;
 typedef std::shared_ptr<std::string> StringPtr;
 
 
-enum TxHeaderField
+enum TransactionHeaderField
 {
-    TxHeaderBatcherPublicKey = 1,
-    TxHeaderStringDependencies,
-    TxHeaderFamilyName,
-    TxHeaderFamilyVersion,
-    TxHeaderInputs,
-    TxHeaderNonce,
-    TxHeaderOutputs,
-    TxHeaderPayloadSha512,
-    TxHeaderSignerPublicKey
+    TransactionHeaderBatcherPublicKey = 1,
+    TransactionHeaderStringDependencies,
+    TransactionHeaderFamilyName,
+    TransactionHeaderFamilyVersion,
+    TransactionHeaderInputs,
+    TransactionHeaderNonce,
+    TransactionHeaderOutputs,
+    TransactionHeaderPayloadSha512,
+    TransactionHeaderSignerPublicKey
 };
 
-class TxHeaderIF
+class TransactionHeaderIF
 {
 public:
-    virtual ~TxHeaderIF(){};
+    virtual ~TransactionHeaderIF(){};
 
-    virtual int GetCount(TxHeaderField field) = 0;
-    virtual const ::std::string& GetValue(TxHeaderField field, int index = 0) = 0;
+    virtual int GetCount(TransactionHeaderField field) = 0;
+    virtual const ::std::string& GetValue(TransactionHeaderField field, int index = 0) = 0;
 };
 
-typedef std::unique_ptr<TxHeaderIF> TxHeaderUPtr;
-typedef std::shared_ptr<TxHeaderIF> TxHeaderPtr;
+typedef std::unique_ptr<TransactionHeaderIF> TransactionHeaderUPtr;
+typedef std::shared_ptr<TransactionHeaderIF> TransactionHeaderPtr;
 
 // The transaction data for a Transaction Processing request.
 class Transaction final {
  public:
-    Transaction(TxHeaderPtr header, StringPtr payload, StringPtr signature):
+    Transaction(TransactionHeaderPtr header, StringPtr payload, StringPtr signature):
             header_(header), payload_(payload), signature_(signature) {
     }
 
@@ -64,7 +64,7 @@ class Transaction final {
     Transaction (const Transaction&&) = delete;
     Transaction& operator= (const Transaction&) = delete;
 
-    const TxHeaderPtr header() const {
+    const TransactionHeaderPtr header() const {
         return this->header_;
     }
 
@@ -77,7 +77,7 @@ class Transaction final {
     }
 
  private:
-    TxHeaderPtr header_;
+    TransactionHeaderPtr header_;
     StringPtr payload_;
     StringPtr signature_;
 };
@@ -236,10 +236,10 @@ typedef std::unique_ptr<AddressMapperIF> AddressMapperUPtr;
 
 
 
-class TxProcessorIF
+class TransactionProcessorIF
 {
 public:
-   virtual ~TxProcessorIF(){};
+   virtual ~TransactionProcessorIF(){};
 
     // Called to register the TransactionHandlers defined by your Transaction
     // Processor.  All the TransactionHandler objects must be registered
@@ -250,9 +250,9 @@ public:
     // until the TransactionProcessor shuts down.
     virtual void Run() = 0;
 
-    static TxProcessorIF* Create(const std::string& connection_string);
+    static TransactionProcessorIF* Create(const std::string& connection_string);
 };
-typedef std::unique_ptr<TxProcessorIF> TransactionProcessorUPtr;
-typedef std::shared_ptr<TxProcessorIF> TransactionProcessorPtr;
+typedef std::unique_ptr<TransactionProcessorIF> TransactionProcessorUPtr;
+typedef std::shared_ptr<TransactionProcessorIF> TransactionProcessorPtr;
 
 }  // namespace sawtooth

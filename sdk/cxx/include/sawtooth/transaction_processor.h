@@ -25,7 +25,7 @@
 namespace sawtooth {
 
 // The main processing class for the Sawtooth SDK.
-class TransactionProcessor: public TxProcessorIF {
+class TransactionProcessor: public TransactionProcessorIF {
  public:
     // Pass a valid ZMQ connection string for the Validator interconnect
     // address

@@ -88,16 +88,15 @@ void TransactionProcessor::HandleProcessingRequest(const void* msg,
         request.ParseFromArray(msg, msg_size);
 
         TransactionHeader* txn_header(request.release_header());
-        TxHeaderPtr txHeader(new TxHeaderWrapper(txn_header)); // YYY TBD
+        const std::string& family = txn_header->family_name();
+        TransactionHeaderPtr txnHeaderPtr(new TransactionHeaderWrapper(txn_header));
 
         StringPtr payload_data(request.release_payload());
         StringPtr signature_data(request.release_signature());
 
-        TransactionUPtr txn(new Transaction( txHeader, //txn_header, YYY TBD
+        TransactionUPtr txn(new Transaction(txnHeaderPtr,
             payload_data,
             signature_data));
-
-        const std::string& family = txn_header->family_name();
 
         auto iter = this->handlers.find(family);
         if (iter != this->handlers.end()) {
@@ -219,7 +218,7 @@ void TransactionProcessor::Run() {
 }
 
 
-TxProcessorIF* TxProcessorIF::Create(const std::string& connection_string)
+TransactionProcessorIF* TransactionProcessorIF::Create(const std::string& connection_string)
 {
     return new TransactionProcessor(connection_string);
 }

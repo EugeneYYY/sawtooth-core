@@ -26,11 +26,11 @@
 
 namespace sawtooth {
 
-class TxHeaderWrapper: public TxHeaderIF
+class TransactionHeaderWrapper: public TransactionHeaderIF
 {
 public:
-    TxHeaderWrapper(TransactionHeader* header): header_(header) {};
-    virtual ~TxHeaderWrapper()
+    TransactionHeaderWrapper(TransactionHeader* header): header_(header) {};
+    virtual ~TransactionHeaderWrapper()
     {
         if (header_ != NULL)
         {
@@ -38,29 +38,29 @@ public:
         }
     };
 
-    virtual int GetCount(TxHeaderField field)
+    virtual int GetCount(TransactionHeaderField field)
     {
         int count = 0;
         switch (field)
         {
-            case TxHeaderStringDependencies:
+            case TransactionHeaderStringDependencies:
                 count = header_->dependencies_size();
                 break;
 
-            case TxHeaderInputs:
+            case TransactionHeaderInputs:
                 count = header_->inputs_size();
                 break;
 
-            case TxHeaderOutputs:
+            case TransactionHeaderOutputs:
                 count = header_->outputs_size();
                 break;
 
-            case TxHeaderNonce:
-            case TxHeaderFamilyName:
-            case TxHeaderFamilyVersion:
-            case TxHeaderPayloadSha512:
-            case TxHeaderBatcherPublicKey:
-            case TxHeaderSignerPublicKey:
+            case TransactionHeaderNonce:
+            case TransactionHeaderFamilyName:
+            case TransactionHeaderFamilyVersion:
+            case TransactionHeaderPayloadSha512:
+            case TransactionHeaderBatcherPublicKey:
+            case TransactionHeaderSignerPublicKey:
                 count = 1;
                 break;
 
@@ -72,45 +72,45 @@ public:
         return count;
     };
 
-    virtual const ::std::string& GetValue(TxHeaderField field, int index)
+    virtual const ::std::string& GetValue(TransactionHeaderField field, int index)
      {
         int count = 0;
 
         switch (field)
         {
-            case TxHeaderStringDependencies:
+            case TransactionHeaderStringDependencies:
                 return header_->dependencies(index);
                 break;
 
-            case TxHeaderInputs:
+            case TransactionHeaderInputs:
                 return header_->inputs(index);
                 break;
 
-            case TxHeaderOutputs:
+            case TransactionHeaderOutputs:
                 return header_->outputs(index);
                 break;
 
-            case TxHeaderNonce:
+            case TransactionHeaderNonce:
                 return header_->nonce();
                 break;
 
-            case TxHeaderFamilyName:
+            case TransactionHeaderFamilyName:
                 return header_->family_name();
                 break;
 
-            case TxHeaderFamilyVersion:
+            case TransactionHeaderFamilyVersion:
                 return header_->family_version();
                 break;
 
-            case TxHeaderPayloadSha512:
+            case TransactionHeaderPayloadSha512:
                 return header_->payload_sha512();
                 break;
 
-            case TxHeaderBatcherPublicKey:
+            case TransactionHeaderBatcherPublicKey:
                 return header_->batcher_public_key();
                 break;
 
-            case TxHeaderSignerPublicKey:
+            case TransactionHeaderSignerPublicKey:
                 return header_->signer_public_key();
                 break;
 
