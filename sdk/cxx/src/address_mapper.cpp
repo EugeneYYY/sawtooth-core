@@ -86,8 +86,8 @@ static void CheckIfValidNamespace(const std::string& addr) {
 AddressMapper::AddressMapper(const std::string& namespace_) :
     namespace_initialized(false), namespace_(namespace_) {}
 
-std::string AddressMapper::MapKey(const std::string& key) const {
-    return SHA512(key).substr(64, 127);
+std::string AddressMapper::MapKey(const std::string& key, std::size_t pos, std::size_t count) const {
+    return SHA512(key).substr(pos, count);
 }
 
 std::string AddressMapper::MapNamespace(const std::string& namespace_) const {
@@ -105,10 +105,11 @@ std::string AddressMapper::GetNamespacePrefix() {
     return namespace_prefix;
 }
 
-std::string AddressMapper::MakeAddress(const std::string& key) {
-    std::string key_part = this->MapKey(key);
+std::string AddressMapper::MakeAddress(const std::string& key, std::size_t pos, std::size_t count) {
+    std::string key_part = this->MapKey(key, pos, count);
     std::string addr = this->GetNamespacePrefix() + key_part;
     CheckIfValidAddr(addr);
+
     return addr;
 }
 
