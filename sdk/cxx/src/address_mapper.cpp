@@ -25,14 +25,14 @@
 #include "cryptopp/hex.h"
 #include "log4cxx/logger.h"
 
-#include "proto/state_context.pb.h"
+// TBD: remove ??? #include "proto/state_context.pb.h"
 
 namespace sawtooth {
 
 const size_t MERKLE_ADDRESS_LENGTH = 70;
 const size_t NAMESPACE_PREFIX_LENGTH = 6;
 
-static log4cxx::LoggerPtr  logger(log4cxx::Logger::getLogger
+static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger
     ("sawtooth.address_mapper"));
 
 // Helper function to generate an SHA512 hash and return it as a hex
@@ -83,20 +83,20 @@ static void CheckIfValidNamespace(const std::string& addr) {
     }
 }
 
-AddressMapper::AddressMapper(const std::string& namespace_) :
+AddressMapperX::AddressMapperX(const std::string& namespace_) :
     namespace_initialized(false), namespace_(namespace_) {}
 
-std::string AddressMapper::MapKey(const std::string& key, std::size_t pos, std::size_t count) const {
+std::string AddressMapperX::MapKey(const std::string& key, std::size_t pos, std::size_t count) const {
     return SHA512(key).substr(pos, count);
 }
 
-std::string AddressMapper::MapNamespace(const std::string& namespace_) const {
+std::string AddressMapperX::MapNamespace(const std::string& namespace_) const {
     std::string ns = SHA512(namespace_);
     return ns.substr(0, 6);
 }
 
 
-std::string AddressMapper::GetNamespacePrefix() {
+std::string AddressMapperX::GetNamespacePrefix() {
     if (!this->namespace_initialized) {
         this->namespace_prefix = this->MapNamespace(namespace_);
         CheckIfValidNamespace(this->namespace_prefix);
@@ -105,7 +105,7 @@ std::string AddressMapper::GetNamespacePrefix() {
     return namespace_prefix;
 }
 
-std::string AddressMapper::MakeAddress(const std::string& key, std::size_t pos, std::size_t count) {
+std::string AddressMapperX::MakeAddress(const std::string& key, std::size_t pos, std::size_t count) {
     std::string key_part = this->MapKey(key, pos, count);
     std::string addr = this->GetNamespacePrefix() + key_part;
     CheckIfValidAddr(addr);
@@ -116,7 +116,7 @@ std::string AddressMapper::MakeAddress(const std::string& key, std::size_t pos, 
 
 AddressMapperIF* AddressMapperIF::Create(const std::string& namespace_)
 {
-    return new AddressMapper(namespace_);
+    return new AddressMapperX(namespace_);
 }
 
 

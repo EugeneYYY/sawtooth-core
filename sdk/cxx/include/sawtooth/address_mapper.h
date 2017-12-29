@@ -45,15 +45,15 @@ class AddressFormatError: public std::runtime_error {
 // namespace prefix when it is constructed. If your transaction processor
 // operates on multiple namespaces, it is recommended that you use an instance
 // for each namespace.
-class AddressMapper: public AddressMapperIF {
+class AddressMapperX: public AddressMapperIF {
  public:
     // Constructor for an address mapping object, Takes the
     // unencoded namespace name, it will be mapping objects, to as a parameter.
     // The namespace argument passed will be mapped to a namespace_prefix
     //explicit AddressMapper(const std::string& namespace_);
 
-    AddressMapper(const std::string& namespace_);
-    virtual ~AddressMapper() {}
+    AddressMapperX(const std::string& namespace_);
+    virtual ~AddressMapperX() {}
 
     //AddressMapper (const AddressMapper&) = delete;
     //AddressMapper (const AddressMapper&&) = delete;
