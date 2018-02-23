@@ -102,18 +102,25 @@ class IntKeyApplicator:  public sawtooth::TransactionApplicator {
                 " 1 and 20 characters in length");
         }
 
-        auto value_it = intkey_cmd.find("Value");
-        if (value_it == intkey_cmd.end()) {
-            throw sawtooth::InvalidTransaction(
-                "Value is required");
-        }
+        if (verb != "get")
+        {
+            auto value_it = intkey_cmd.find("Value");
+            if (value_it == intkey_cmd.end()) {
+                throw sawtooth::InvalidTransaction(
+                    "Value is required");
+            }
 
-        value = (*value_it).get<uint32_t>();
-        if(value < MIN_VALUE || value > MAX_VALUE){
-            std::stringstream error;
-            error << "Value (" << value << ") is out of range [" <<
-                MIN_VALUE << ", " << MAX_VALUE << "]";
-            throw sawtooth::InvalidTransaction(error.str());
+            value = (*value_it).get<uint32_t>();
+            if(value < MIN_VALUE || value > MAX_VALUE){
+                std::stringstream error;
+                error << "Value (" << value << ") is out of range [" <<
+                    MIN_VALUE << ", " << MAX_VALUE << "]";
+                throw sawtooth::InvalidTransaction(error.str());
+            }
+        }
+        else
+        {
+            value = 0;
         }
     };
 
@@ -131,6 +138,8 @@ class IntKeyApplicator:  public sawtooth::TransactionApplicator {
             this->DoInc(name, value);
         } else if (verb == "dec") {
             this->DoDec(name, value);
+        } else if (verb == "get") {
+            this->DoGet(name);
         } else {
             std::stringstream error;
             error << "invalid Verb: '" << verb << "'";
@@ -269,6 +278,49 @@ class IntKeyApplicator:  public sawtooth::TransactionApplicator {
         std::vector<std::uint8_t> state_value_rep_vec = json::to_cbor(state_value_map);
         state_value_rep = ToString(state_value_rep_vec);
         this->state->SetState(address, state_value_rep);
+    }
+
+    // Handle an IntKey 'get' verb action.
+    // This returns current IntKey counter value stored in global state.
+    // The value return in the transaction receipt data
+    void DoGet(const std::string& name) {
+        auto address = this->MakeAddress(name);
+        LOG4CXX_DEBUG(
+            logger,
+            "IntKeyApplicator::DoGet Name: " << name << " Address: " << address);
+
+        json state_value_map;
+        std::string state_value_rep;
+        if(this->state->GetState(&state_value_rep, address)) {
+            std::vector<std::uint8_t> state_value_rep_v = ToVector(state_value_rep);
+
+            state_value_map = json::from_cbor(state_value_rep_v);
+            if (state_value_map.find(name) == state_value_map.end()) {
+                std::stringstream error;
+                error << "Verb was 'Get', but value does not exist for "
+                      << "Name: "
+                      << name;
+                throw sawtooth::InvalidTransaction(error.str());
+            }
+            LOG4CXX_DEBUG(logger, "found");
+        } else {
+            std::stringstream error;
+            error << "Verb was 'get', but address not found in state for "
+                  << "Name: "
+                  << name;
+            throw sawtooth::InvalidTransaction(error.str());
+        }
+        LOG4CXX_DEBUG(logger,
+            "address received: " << address << "=" << state_value_map[name]);
+
+        uint32_t value = state_value_map[name].get<uint32_t>();
+        std::stringstream receipt_data;
+        receipt_data << "Current value for '"
+                     << name
+                     << "' is "
+                     << value
+                     << ".";
+        this->state->AddTransactionReceiptData(receipt_data.str());
     }
 };
 

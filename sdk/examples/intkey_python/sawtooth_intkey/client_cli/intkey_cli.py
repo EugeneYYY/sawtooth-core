@@ -114,6 +114,7 @@ def create_parser(prog_name):
     add_dec_parser(subparsers, parent_parser)
     add_show_parser(subparsers, parent_parser)
     add_list_parser(subparsers, parent_parser)
+    add_get_parser(subparsers, parent_parser)
 
     add_generate_parser(subparsers, parent_parser)
     add_load_parser(subparsers, parent_parser)
@@ -122,6 +123,45 @@ def create_parser(prog_name):
     add_workload_parser(subparsers, parent_parser)
 
     return parser
+
+
+def add_get_parser(subparsers, parent_parser):
+    message = 'Sends an intkey transaction to increment <name> by <value>.'
+
+    parser = subparsers.add_parser(
+        'get',
+        parents=[parent_parser],
+        description=message,
+        help='Increments an intkey value')
+
+    parser.add_argument(
+        'name',
+        type=str,
+        help='identify name of key to increment')
+
+    parser.add_argument(
+        '--url',
+        type=str,
+        help='specify URL of REST API')
+
+    parser.add_argument(
+        '--keyfile',
+        type=str,
+        help="identify file containing user's private key")
+
+    parser.add_argument(
+        '--wait',
+        nargs='?',
+        const=sys.maxsize,
+        type=int,
+        help='set time, in seconds, to wait for transaction to commit')
+
+
+def do_get(args):
+    name, wait = args.name, args.wait
+    client = _get_client(args)
+    response = client.get(name, wait)
+    print(response)
 
 
 def add_set_parser(subparsers, parent_parser):
@@ -348,6 +388,8 @@ def main(prog_name=os.path.basename(sys.argv[0]), args=None):
         do_inc(args)
     elif args.command == 'dec':
         do_dec(args)
+    elif args.command == 'get':
+        do_get(args)
     elif args.command == 'show':
         do_show(args)
     elif args.command == 'list':

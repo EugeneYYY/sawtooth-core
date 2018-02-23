@@ -98,7 +98,7 @@ void TransactionProcessorImpl::Register() {
             if (response.status() != TpRegisterResponse::OK) {
                 LOG4CXX_ERROR(logger, "Register failed, status code: "
                     << response.status());
-                throw std::runtime_error("Registation failed");
+                throw std::runtime_error("Registration failed");
             }
         }
     }
@@ -120,7 +120,6 @@ void TransactionProcessorImpl::UnRegister() {
         LOG4CXX_ERROR(logger, "Unregister ok: " << response.status());
     }
 }
-
 
 void TransactionProcessorImpl::HandleProcessingRequest(const void* msg,
         size_t msg_size,

@@ -119,6 +119,14 @@ class GlobalState {
 
     // Delete multiple entries from global state.
     virtual void DeleteState(const std::vector<std::string>& address) const = 0;
+
+    // Set/append date to the transaction receipt
+    virtual void AddTransactionReceiptData(const std::string& data) = 0;
+
+    // Add an event to the transaction
+    virtual void AddTransactionEvent(const std::string& event_type,
+                                     const std::string& data,
+                                     const std::vector<KeyValue>& attributes) = 0;
 };
 typedef std::shared_ptr<GlobalState> GlobalStatePtr;
 typedef std::unique_ptr<GlobalState> GlobalStateUPtr;

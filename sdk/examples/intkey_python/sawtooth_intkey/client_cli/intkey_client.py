@@ -41,6 +41,7 @@ def _sha512(data):
 class IntkeyClient:
     def __init__(self, url, keyfile=None):
         self.url = url
+        self._last_transaction_id = ""
 
         if keyfile is not None:
             try:
@@ -68,6 +69,23 @@ class IntkeyClient:
 
     def dec(self, name, value, wait=None):
         return self._send_transaction('dec', name, value, wait=wait)
+
+    def _get_receipt_data(self):
+        cmd = "receipts?id={}".format(self._last_transaction_id)
+        result = self._send_request(cmd, name=self._last_transaction_id)
+        if len(yaml.safe_load(result)['data'][0]['data']):
+            data = yaml.safe_load(result)['data'][0]['data'][0]
+            if data:
+                str = base64.b64decode(data)
+                return "Receipt data:\nbase64  - {0}\ndecoded - {1}".format(
+                    data,
+                    str.decode("utf-8"))
+
+        return "no receipt data"
+
+    def get(self, name, wait=None):
+        result = self._send_transaction('get', name, 0, wait=wait)
+        return self._get_receipt_data()
 
     def list(self):
         result = self._send_request(
@@ -176,6 +194,8 @@ class IntkeyClient:
             payload=payload,
             header_signature=signature
         )
+
+        self._last_transaction_id = signature
 
         batch_list = self._create_batch_list([transaction])
         batch_id = batch_list.batches[0].header_signature

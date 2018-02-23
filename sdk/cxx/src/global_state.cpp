@@ -109,7 +109,6 @@ void GlobalStateImpl::SetState(const std::vector<KeyValue>& kv_pairs) const {
 
 }
 
-
 void GlobalStateImpl::DeleteState(
         const std::string& address) const {
     std::vector<std::string> addrs = { address };
@@ -127,6 +126,59 @@ void GlobalStateImpl::DeleteState(const std::vector<std::string>& addresses) con
     FutureMessagePtr future = this->message_stream->SendMessage(
         Message::TP_STATE_DELETE_REQUEST, request);
     future->GetMessage(Message::TP_STATE_DELETE_RESPONSE, &response);
+}
+
+void GlobalStateImpl::AddTransactionReceiptData(const std::string& data) {
+    TpReceiptAddDataRequest request;
+    TpReceiptAddDataResponse response;
+
+    request.set_context_id(this->context_id);
+    request.set_data(data);
+
+    FutureMessagePtr future = this->message_stream->SendMessage(
+          Message_MessageType_TP_RECEIPT_ADD_DATA_REQUEST, request);
+
+    future->GetMessage(Message_MessageType_TP_RECEIPT_ADD_DATA_RESPONSE, &response);
+
+    if (response.status() != TpReceiptAddDataResponse::OK) {
+        LOG4CXX_ERROR(logger, "AddTransactionReceiptData failed, status code: "
+                    << response.status());
+        throw std::runtime_error("AddTransactionReceiptData failed");
+    } else {
+        LOG4CXX_ERROR(logger, "AddTransactionReceiptData ok: " << response.status());
+    }
+}
+
+void GlobalStateImpl::AddTransactionEvent(const std::string& event_type,
+                                          const std::string& data,
+                                          const std::vector<KeyValue>& attributes) {
+    TpEventAddRequest request;
+    TpEventAddResponse response;
+    Event* txn_event = new Event();
+
+    txn_event->set_event_type(event_type);
+    txn_event->set_data(data);
+    for (auto src : attributes) {
+        Event::Attribute* attribute = txn_event->add_attributes();
+        attribute->set_key(src.first);
+        attribute->set_value(src.second);
+    }
+
+    request.set_context_id(this->context_id);
+    request.set_allocated_event(txn_event);
+
+    FutureMessagePtr future = this->message_stream->SendMessage(
+          Message_MessageType_TP_EVENT_ADD_REQUEST, request);
+
+    future->GetMessage(Message_MessageType_TP_EVENT_ADD_RESPONSE, &response);
+
+    if (response.status() != TpEventAddResponse::OK) {
+        LOG4CXX_ERROR(logger, "AddEvent failed, status code: "
+                    << response.status());
+        throw std::runtime_error("AddEvent failed");
+    } else {
+        LOG4CXX_ERROR(logger, "AddEvent ok: " << response.status());
+    }
 }
 
 }  // namespace sawtooth

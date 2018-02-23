@@ -65,6 +65,14 @@ class GlobalStateImpl: public GlobalState {
     // Delete multiple entries from global state.
     void DeleteState(const std::vector<std::string>& address) const;
 
+    // Set/append date to the transaction receipt
+    void AddTransactionReceiptData(const std::string& data);
+
+    // Add an event to the transaction
+    void AddTransactionEvent(const std::string& event_type,
+                             const std::string& data,
+                             const std::vector<KeyValue>& attributes);
+
  private:
     std::string context_id;
     MessageStreamPtr message_stream;
